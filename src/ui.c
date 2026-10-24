@@ -2,6 +2,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include "ui.h"
+#include "player.h"
 
 // 绘制从（a,b）宽高为（c,d）的圆角矩阵 c>a d>b
 #define DRAW_RECT(a, b, c, d, color) \
@@ -10,12 +11,19 @@
 // 定义变量
 // 中文字体
 static Font chinese_font;
-
+// sidebar状态
 static UI_TYPE selected_ui = SONG_LIBRARY;
 static UI_TYPE preselected_ui = -1;
+// 播放按钮信息
+static struct
+{
+    Vector2 p;
+    float r;
+    Color c;
+} playing_button = {346, 680, 23, COLOR_PRIMARY};
 
-// 定义函数
-// 加载中文常用字体
+//  定义函数
+//  加载中文常用字体
 static void LoadChinese()
 {
     int count = 0;
@@ -65,6 +73,18 @@ static void DrawMainUi()
     // 绘制被预选中项强调框
     if (preselected_ui != -1)
         DrawRectangleRounded(SIDEBAR_ITEM_RECT(preselected_ui), 0.50f, 30, COLOR_PRESELECTED);
+    // 绘制播放按钮
+    DrawCircle(playing_button.p.x, playing_button.p.y, playing_button.r, playing_button.c);
+    if (GetIsPlaying())
+    {
+        // todo 切换动画
+        DrawTriangle((Vector2){340, 672}, (Vector2){340, 688}, (Vector2){354, 680}, WHITE);
+    }
+    else
+    {
+        DrawRectangle(340, 672, 4, 16, WHITE);
+        DrawRectangle(350, 672, 4, 16, WHITE);
+    }
 }
 
 static void DrawPlayingMusic()
@@ -123,7 +143,7 @@ static void DrawSetting()
     DrawChinese("设置占位符", 480, 300, 18, COLOR_TEXT);
 }
 
-static void handle_user_input()
+static void UpdateSidebar()
 {
     preselected_ui = -1;
     Vector2 mouse = GetMousePosition();
@@ -143,8 +163,28 @@ static void handle_user_input()
     }
 }
 
+static void UpdatePlayingButton()
+{
+    Vector2 mouse = GetMousePosition();
+    if (CheckCollisionPointCircle(mouse, playing_button.p, playing_button.r))
+    {
+        // todo 预选
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            SwitchPlaying(!GetIsPlaying());
+        }
+    }
+}
+
+void UpdateUi()
+{
+    UpdateSidebar();
+    UpdatePlayingButton();
+}
+
 int main()
 {
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Test"); // 初始化窗口
     LoadChinese();                                   // 初始化字体
     SetTraceLogLevel(LOG_WARNING);                   // 设置日志提示等级
@@ -152,7 +192,7 @@ int main()
     while (!WindowShouldClose())
     {
 
-        handle_user_input(); // 处理用户输入
+        UpdateUi(); // 更新ui组件状态
 
         // 开始绘制
         BeginDrawing();

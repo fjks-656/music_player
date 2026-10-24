@@ -34,6 +34,9 @@
 // 预选中的导航项
 #define COLOR_PRESELECTED \
     (Color){167, 189, 211, 45}
+// 播放按钮、选中内容、进度拖动点
+#define COLOR_PRIMARY \
+    (Color){81, 107, 137, 255}
 
 // 圆角设置 roundness0.0-1.0 segments 0自动计算，越大越平滑
 #define ROUNDSETTING 0.0, 0
@@ -49,7 +52,7 @@
     ((Rectangle){15, 95 + (index) * 44, 150, 40})
 
 // 界面种类枚举
-typedef enum class
+typedef enum
 {
     PLAYING_MUSIC,
     SONG_LIBRARY,

@@ -26,3 +26,11 @@ typedef struct
     size_t size;
     size_t capacity;
 } MusicLibrary;
+
+// 播放集
+typedef struct 
+{
+    Song **list; //歌曲指针数组
+    size_t size;
+} PlayingGollection;
+
