@@ -1,0 +1,52 @@
+cmake_minimum_required(VERSION 3.16)
+project(MusicPlayer VERSION 0.1.0 LANGUAGES CXX)
+
+# ---------- C++ 标准 ----------
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# 默认构建类型
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
+endif()
+
+# ---------- 源文件 ----------
+# 自动收集 src/ 下所有 .cpp（含子目录）
+# CONFIGURE_DEPENDS 让新增/删除文件时 cmake 重新配置
+file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
+    ${CMAKE_SOURCE_DIR}/src/*.cpp
+)
+
+if(NOT PROJECT_SOURCES)
+    message(FATAL_ERROR "src/ 下没有找到 .cpp 文件，先放一个 main.cpp")
+endif()
+
+add_executable(music_player ${PROJECT_SOURCES})
+
+# ---------- 头文件目录 ----------
+target_include_directories(music_player PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+)
+
+# ---------- 第三方库（lib/） ----------
+# 约定：源码库放 lib/库名/，预编译库放 lib/库名/lib 和 lib/库名/include
+
+# 1) 源码库：add_subdirectory
+# add_subdirectory(${CMAKE_SOURCE_DIR}/lib/xxx)
+# target_link_libraries(music_player PRIVATE xxx)
+
+# 2) 预编译库：手动指定 include 和 lib
+# target_include_directories(music_player PRIVATE ${CMAKE_SOURCE_DIR}/lib/xxx/include)
+# target_link_directories(music_player PRIVATE ${CMAKE_SOURCE_DIR}/lib/xxx/lib)
+# target_link_libraries(music_player PRIVATE xxx)
+
+# 3) Windows 系统库示例（EasyX / MCI 会用到）
+# if(WIN32)
+#     target_link_libraries(music_player PRIVATE winmm)
+# endif()
+
+# ---------- 输出目录 ----------
+set_target_properties(music_player PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin
+)
